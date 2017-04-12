@@ -105,7 +105,8 @@ export default class DropdownAlert extends Component {
       isOpen: false,
       startDelta: props.startDelta,
       endDelta: props.endDelta,
-      topValue: 0
+      topValue: 0,
+      _isMounted: false
     }
     // Render
     this.renderButton = this.renderButton.bind(this)
@@ -125,6 +126,7 @@ export default class DropdownAlert extends Component {
     this.handleStartShouldSetPanResponder = this.handleMoveShouldSetPanResponder.bind(this)
   }
   componentWillMount() {
+	this.setState({_isMounted: true})
     panResponder = PanResponder.create({
       onStartShouldSetPanResponder: this.handleStartShouldSetPanResponder,
       onMoveShouldSetPanResponder: this.handleMoveShouldSetPanResponder,
@@ -132,6 +134,9 @@ export default class DropdownAlert extends Component {
       onPanResponderRelease: this.handlePanResponderEnd,
       onPanResponderTerminate: this.handlePanResponderEnd,
     })
+  }
+  componentWillUnmount() {
+	this.setState({_isMounted: false})
   }
   alert(title, message) {
     if (title == undefined) {
@@ -207,9 +212,11 @@ export default class DropdownAlert extends Component {
       this.animate(0)
       setTimeout(function() {
         if (this.state.isOpen) {
-          this.setState({
-            isOpen: false
-          })
+          if (this.state._isMounted) {
+            this.setState({
+              isOpen: false
+            })
+          }
           if (onDismiss) {
             var data = {
               type: this.state.type,
